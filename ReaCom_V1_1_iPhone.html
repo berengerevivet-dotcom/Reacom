@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>RéaCom V1.1</title>
+<style>
+*{box-sizing:border-box} body{margin:0;background:#eef4f5;font-family:system-ui,-apple-system,Arial,sans-serif;color:#17242d}
+header{background:#237f8a;color:white;padding:18px 16px}
+h1{margin:0 0 14px;font-size:27px}.phrase{background:#ffffff22;border-radius:18px;padding:18px;font-size:24px;font-weight:800;min-height:68px}
+.headbuttons{display:flex;gap:12px;margin-top:12px}.headbuttons button{flex:1;border:0;border-radius:16px;padding:16px;font-size:20px;font-weight:800}
+main{padding:18px 14px 115px;max-width:850px;margin:auto}.label{font-size:19px;font-weight:900;letter-spacing:.09em;color:#61717a;margin:4px 3px 16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.category,.item{border:0;border-radius:22px;min-height:150px;padding:16px 8px;font-size:22px;font-weight:850;box-shadow:0 3px 10px #0001}
+.category{color:white;background:var(--c)}.item{background:white;border-top:7px solid var(--c);color:#17242d}
+.icon{display:block;font-size:52px;margin-bottom:8px}.back{border:0;background:#dce7e9;border-radius:14px;padding:12px 16px;font-size:18px;font-weight:800;margin-bottom:15px}
+.bottom{position:fixed;z-index:5;bottom:0;left:0;right:0;background:white;padding:10px 10px calc(10px + env(safe-area-inset-bottom));display:grid;grid-template-columns:1fr 1fr .45fr;gap:10px;box-shadow:0 -2px 10px #0002}
+.bottom button{border:0;border-radius:18px;color:white;padding:17px 5px;font-size:24px;font-weight:900}.yes{background:#278b58}.no{background:#c63b2e}.homebtn{background:#596873}
+.screen{background:white;border:3px solid #9db3b9;border-radius:18px;min-height:85px;padding:17px;font-size:32px;font-weight:850;margin-bottom:14px;word-break:break-word}
+.keys{display:grid;grid-template-columns:repeat(6,1fr);gap:7px}.key{border:0;background:white;border-radius:12px;min-height:58px;font-size:25px;font-weight:850;box-shadow:0 2px 7px #0002}.wide{grid-column:span 2}.note{color:#697980;font-size:13px;margin-top:20px}
+</style>
+</head>
+<body>
+<header>
+<h1>RéaCom</h1>
+<div class="phrase" id="phrase">Touchez une image pour parler…</div>
+<div class="headbuttons">
+<button onclick="parlerPhrase()">🔊 Parler</button>
+<button onclick="effacer()">✕ Effacer</button>
+</div>
+</header>
+
+<main>
+<section id="accueil">
+<div class="label">CHOISISSEZ UN THÈME</div>
+<div class="grid">
+<button class="category" style="--c:#df4653" onclick="ouvrir('douleur')"><span class="icon">😣</span>Douleur</button>
+<button class="category" style="--c:#327fd1" onclick="ouvrir('besoins')"><span class="icon">💧</span>Besoins</button>
+<button class="category" style="--c:#8062ad" onclick="ouvrir('ressenti')"><span class="icon">😟</span>Ressenti</button>
+<button class="category" style="--c:#12a28f" onclick="ouvrir('soins')"><span class="icon">🏥</span>Soins</button>
+<button class="category" style="--c:#3ba84f" onclick="ouvrir('proches')"><span class="icon">👨‍👩‍👧</span>Proches</button>
+<button class="category" style="--c:#168995" onclick="ouvrir('reponses')"><span class="icon">💬</span>Réponses</button>
+<button class="category" style="--c:#596873" onclick="ouvrirClavier()"><span class="icon">⌨️</span>Écrire</button>
+</div>
+</section>
+
+<section id="categorie" hidden>
+<button class="back" onclick="accueil()">← Thèmes</button>
+<div class="label" id="titre"></div>
+<div class="grid" id="liste"></div>
+</section>
+
+<section id="clavier" hidden>
+<button class="back" onclick="accueil()">← Thèmes</button>
+<div class="label">ÉCRIRE EN GROSSES LETTRES</div>
+<div class="screen" id="texte"></div>
+<div class="keys" id="touches"></div>
+</section>
+<p class="note">Prototype autonome, sans appel à un service cloud. La synthèse vocale utilise les fonctions disponibles sur l’appareil.</p>
+</main>
+
+<nav class="bottom">
+<button class="yes" onclick="dire('Oui')">👍 OUI</button>
+<button class="no" onclick="dire('Non')">👎 NON</button>
+<button class="homebtn" onclick="accueil()">🏠</button>
+</nav>
+
+<script>
+var contenu={
+douleur:{titre:"DOULEUR",c:"#df4653",i:[["📊","Évaluer ma douleur"],["🤕","J’ai mal à la tête"],["😮‍💨","J’ai mal à la gorge"],["🫁","J’ai mal à la poitrine"],["🤰","J’ai mal au ventre"],["🦵","J’ai mal aux jambes"],["🛏️","J’ai mal au dos"],["📍","J’ai mal ailleurs"]]},
+besoins:{titre:"BESOINS",c:"#327fd1",i:[["💧","J’ai soif"],["🍽️","J’ai faim"],["🚽","Je veux aller aux toilettes"],["🛏️","Changez ma position"],["🥶","J’ai froid"],["🥵","J’ai chaud"],["😴","Je veux dormir"],["🧼","Je veux me laver"]]},
+ressenti:{titre:"RESSENTI",c:"#8062ad",i:[["😰","J’ai peur"],["😢","Je suis triste"],["😡","Je suis en colère"],["😴","Je suis fatigué(e)"],["😵‍💫","Je suis perdu(e)"],["🙂","Je me sens mieux"],["🤢","J’ai envie de vomir"]]},
+soins:{titre:"SOINS",c:"#12a28f",i:[["👩‍⚕️","Je veux voir un soignant"],["🫁","J’ai du mal à respirer"],["🛏️","Repositionnez-moi"],["🧴","Je veux des soins de bouche"],["❓","Expliquez-moi ce que vous faites"]]},
+proches:{titre:"PROCHES",c:"#3ba84f",i:[["👨‍👩‍👧","Je veux voir ma famille"],["📞","Je veux appeler un proche"],["✍️","Je veux écrire"],["📍","Où suis-je ?"],["📅","Quel jour sommes-nous ?"],["🕐","Quelle heure est-il ?"]]},
+reponses:{titre:"RÉPONSES",c:"#168995",i:[["👍","Oui"],["👎","Non"],["🤷","Je ne sais pas"],["🔁","Répétez s’il vous plaît"],["🐢","Parlez plus lentement"],["✋","Stop"]]}
+};
+function accueil(){document.getElementById("accueil").hidden=false;document.getElementById("categorie").hidden=true;document.getElementById("clavier").hidden=true;window.scrollTo(0,0)}
+function ouvrir(k){var d=contenu[k], l=document.getElementById("liste");document.getElementById("titre").textContent=d.titre;l.innerHTML="";d.i.forEach(function(x){var b=document.createElement("button");b.className="item";b.style.setProperty("--c",d.c);b.innerHTML='<span class="icon">'+x[0]+'</span>'+x[1];b.onclick=function(){dire(x[1])};l.appendChild(b)});document.getElementById("accueil").hidden=true;document.getElementById("categorie").hidden=false;document.getElementById("clavier").hidden=true;window.scrollTo(0,0)}
+function parler(t){if("speechSynthesis" in window){window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang="fr-FR";u.rate=.85;window.speechSynthesis.speak(u)}}
+function dire(t){document.getElementById("phrase").textContent=t;parler(t)}
+function parlerPhrase(){var t=document.getElementById("phrase").textContent;if(t.indexOf("Touchez")!==0)parler(t)}
+function effacer(){document.getElementById("phrase").textContent="Touchez une image pour parler…";document.getElementById("texte").textContent=""}
+function ouvrirClavier(){document.getElementById("accueil").hidden=true;document.getElementById("categorie").hidden=true;document.getElementById("clavier").hidden=false;window.scrollTo(0,0)}
+var chars="ABCDEFGHIJKLMNOPQRSTUVWXYZÉÈÀÇÙ'?!".split("");
+var box=document.getElementById("touches");
+chars.forEach(function(k){var b=document.createElement("button");b.className="key";b.textContent=k;b.onclick=function(){taper(k)};box.appendChild(b)});
+function special(txt,fn){var b=document.createElement("button");b.className="key wide";b.textContent=txt;b.onclick=fn;box.appendChild(b)}
+special("ESPACE",function(){taper(" ")});special("⌫",function(){var t=document.getElementById("texte");t.textContent=t.textContent.slice(0,-1);document.getElementById("phrase").textContent=t.textContent||"Touchez une image pour parler…"});special("🔊 DIRE",function(){parler(document.getElementById("texte").textContent)});
+function taper(k){var t=document.getElementById("texte");t.textContent+=k;document.getElementById("phrase").textContent=t.textContent}
+</script>
+</body></html>
